@@ -1,0 +1,100 @@
+import pygame
+import pymunk
+
+pygame.init()
+
+# Configurações da janela
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Robo Sumo')
+
+# Configurações do espaço físico
+space = pymunk.Space()
+space.gravity = (0.0, 0.0)
+
+# Posição dos círculos
+circle_positions = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+# Criar a arena
+arena_radius = 200
+
+# Criar o círculo central
+center_radius = 180
+
+# Criar o círculo externo (quando 50% do diametro do robô sai, a pontuação diminui)
+centerex_radius = 225
+
+# Criar o robô principal
+robot_mass = 1
+robot_radius = 25
+robot_body = pymunk.Body(mass=robot_mass, moment=pymunk.moment_for_circle(robot_mass, 0, robot_radius))
+robot_shape = pymunk.Circle(robot_body, robot_radius)
+robot_shape.elasticity = 1.0
+robot_shape.friction = 1.0
+space.add(robot_body, robot_shape)
+
+# Criar o segundo robô
+robot2_mass = 1
+robot2_radius = 25
+robot2_body = pymunk.Body(mass=robot2_mass, moment=pymunk.moment_for_circle(robot2_mass, 0, robot2_radius))
+robot2_shape = pymunk.Circle(robot2_body, robot2_radius)
+robot2_shape.elasticity = 1.0
+robot2_shape.friction = 1.0
+space.add(robot2_body, robot2_shape)
+
+# Definir a posição inicial do segundo robô
+robot2_body.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
+
+# Loop principal
+running = True
+clock = pygame.time.Clock()
+while running:
+    # Tratar eventos
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        
+    # Calcular o tempo desde a última atualização
+    dt = clock.tick(60) / 1000.0
+
+    # Obter posição do mouse
+    mouse_pos = pygame.mouse.get_pos()
+
+    # Definir a posição do robô
+    robot_body.position = mouse_pos
+
+    # Atualizar física
+    space.step(dt)
+
+    # Desenhar
+    screen.fill((0, 0, 0))
+
+    # Desenhar e definir o raio da arena
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(arena_radius), 2)
+
+    # Desenhar e definir o raio e círculo central 
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(center_radius), 2)
+
+    # Preencher a área entre a arena e o círculo central
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(center_radius), 0)
+    pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(center_radius - 10), 0)
+    pygame.draw.circle(screen, color, circle_positions, int(arena_radius), 0)
+    pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(arena_radius - 10), 0)
+
+    # Desenhar o círculo externo
+    color = (0, 255, 0)
+    pygame.draw.circle(screen, color, circle_positions, int(centerex_radius), 2)
+
+    # Desenhar o robô principal
+    color = (255, 0, 0)
+    pygame.draw.circle(screen, color, robot_body.position, int(robot_radius), 0)
+
+    # Desenhar o segundo robô
+    color = (0, 0, 255)
+    pygame.draw.circle(screen, color, robot2_body.position, int(robot2_radius), 0)
+
+    pygame.display.flip()
