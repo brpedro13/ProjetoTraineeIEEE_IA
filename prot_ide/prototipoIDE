@@ -11,7 +11,6 @@ pygame.display.set_caption('Robo Sumo')
 
 # Configurações do espaço físico
 space = pymunk.Space()
-space.gravity = (0.0, 0.0)
 
 # Posição dos círculos
 circle_positions = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
