@@ -114,3 +114,4 @@ while running:
 
     # Atualizar tela
     pygame.display.flip()
+    
