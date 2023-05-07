@@ -38,11 +38,11 @@ class Robot:
     def set_speed(self, x_speed, y_speed):
         self.body.velocity = x_speed, y_speed
 
-    def update_velocity(self, x_accel, y_accel, itmp):
+    def update_velocity(self, x_accel, y_accel, vartmp):
         self.body.apply_force_at_local_point((x_accel * self.mass, y_accel * self.mass))
         
-    def update_position(self, itmp):
-        self.body.position += self.body.velocity * itmp
+    def update_position(self, vartmp):
+        self.body.position += self.body.velocity * vartmp
 
 # Criação do robô1 e robô2
 
@@ -62,9 +62,9 @@ while running:
             running = False
     
     # Atualizar posição dos robôs
-    dt = clock.tick(60) / 1000.0
-    robo1.update_position(dt)
-    robo2.update_position(dt)
+    vartmp = clock.tick(60) / 1000.0
+    robo1.update_position(vartmp)
+    robo2.update_position(vartmp)
 
     # Desenhar
     screen.fill((0, 0, 0))
