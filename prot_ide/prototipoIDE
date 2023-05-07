@@ -108,6 +108,7 @@ while running:
     color = (0, 255, 0)
     pygame.draw.circle(screen, color, circle_positions, int(outer_radius), 2)
 
+
     # Desenhar robôs
     pygame.draw.circle(screen, robo1.color, (int(robo1.body.position[0]), int(height - robo1.body.position[1])), robo1.radius)
     pygame.draw.circle(screen, robo2.color, (int(robo2.body.position[0]), int(height - robo2.body.position[1])), robo2.radius)
