@@ -21,7 +21,7 @@ arena_radius = 200
 # Criar o círculo central
 center_radius = 180
 
-# Criar o círculo externo (quando 50% do diametro do robô sai, a pontuação diminui)
+# Criar o círculo externo (quando 50% do diametro do robô sai, o robô perde).
 centerex_radius = 225
 
 # Criar a classe robô 
@@ -32,25 +32,67 @@ class Robot:
         self.body = pymunk.Body(mass=mass, moment=pymunk.moment_for_circle(mass, 0, radius))
         self.body.position = x, y
         self.shape = pymunk.Circle(self.body, radius)
+        self.elasticity = 0.8
+        self.friction = 1
         self.radius = radius 
         self.color = color
+        self.force = 0
+
+    
+    # criar um collision handler
+        self.shape.collision_type = 1
+        self.shape.robot = self
+
     
     def set_speed(self, x_speed, y_speed):
         self.body.velocity = x_speed, y_speed
-
-    def update_velocity(self, x_accel, y_accel, vartmp):
-        self.body.apply_force_at_local_point((x_accel * self.mass, y_accel * self.mass))
         
     def update_position(self, vartmp):
         self.body.position += self.body.velocity * vartmp
 
+        # aplicar a força do empurrão, caso ela exista
+        if self.force != 0:
+            self.body.apply_force_at_local_point((self.force, 0))
+    
+    def apply_force(self, force):
+        self.force = force
+
 # Criação do robô1 e robô2
 
-robo1 = Robot(mass=1, x=300, y=220, radius= 25, color = (0, 0, 255))
-robo1.set_speed(x_speed=0, y_speed=0)
+robo1 = Robot(mass=1, x=300, y=250, radius= 25, color = (0, 0, 255))
+robo1.set_speed(x_speed=0, y_speed= 100)
 
-robo2 = Robot(mass=1, x=300, y=380, radius=25, color=(255, 0, 0))
-robo2.set_speed(x_speed=0, y_speed=0)
+robo2 = Robot(mass=1, x=300, y=350, radius=25, color=(255, 0, 0))
+robo2.set_speed(x_speed=0, y_speed= -10)
+
+# Adicionar os corpos ao espaço físico
+space.add(robo1.body, robo1.shape)
+space.add(robo2.body, robo2.shape)
+
+def on_collision(arbiter,elasticity):
+
+    # Obter os corpos e robôs envolvidos na colisão
+
+    robot1, robot2 = arbiter.shapes[0].body, arbiter.shapes[1].body
+    robo1 = robot1.robot
+    robo2 = robot2.robot
+    
+    # Obter a velocidade relativa dos robôs na direção da normal de colisão
+    v_rel = arbiter.contact_point_set.normal.dot(robo1.body.velocity - robo2.body.velocity)
+    
+    # Se os robôs estiverem se afastando, não aplicar forças
+    if v_rel > 0:
+        return
+    
+    # Obter a força de contato a ser aplicada
+    impulse = (1 + elasticity) * robo1.mass * robo2.mass * v_rel
+    impulse /= (robo1.mass + robo2.mass)
+    
+    # Aplicar a força nos robôs
+    robo1.apply_force(-impulse)
+    robo2.apply_force(impulse)
+    
+    return True
 
 # Loop principal
 running = True
@@ -65,6 +107,21 @@ while running:
     vartmp = clock.tick(60) / 1000.0
     robo1.update_position(vartmp)
     robo2.update_position(vartmp)
+
+    # Verificar se os robôs estão dentro do círculo externo.
+
+    for robo in [robo1, robo2]:
+        dx = robo.body.position.x - circle_positions[0]
+        dy = robo.body.position.y - circle_positions[1]
+        distance = (dx ** 2 + dy ** 2) ** 0.5
+       
+        if distance + 50 > centerex_radius + robo.radius:
+            # parar a simulação caso o robô encoste no círculo externo
+            running = False
+
+
+    # Atualizar a simulação física
+    space.step(vartmp)
 
     # Desenhar
     screen.fill((0, 0, 0))
