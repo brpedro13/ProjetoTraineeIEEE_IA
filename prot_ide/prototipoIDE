@@ -4,16 +4,16 @@ import pymunk
 pygame.init()
 
 # Configurações da janela
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+width = 600
+height = 600
+screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Robo Sumo')
 
 # Configurações do espaço físico
 space = pymunk.Space()
 
 # Posição dos círculos
-circle_positions = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+circle_positions = (width / 2, height / 2)
 
 # Criar a arena
 arena_radius = 200
@@ -24,26 +24,33 @@ center_radius = 180
 # Criar o círculo externo (quando 50% do diametro do robô sai, a pontuação diminui)
 centerex_radius = 225
 
-# Criar o robô principal
-robot_mass = 1
-robot_radius = 25
-robot_body = pymunk.Body(mass=robot_mass, moment=pymunk.moment_for_circle(robot_mass, 0, robot_radius))
-robot_shape = pymunk.Circle(robot_body, robot_radius)
-robot_shape.elasticity = 1.0
-robot_shape.friction = 1.0
-space.add(robot_body, robot_shape)
+# Criar a classe robô 
 
-# Criar o segundo robô
-robot2_mass = 1
-robot2_radius = 25
-robot2_body = pymunk.Body(mass=robot2_mass, moment=pymunk.moment_for_circle(robot2_mass, 0, robot2_radius))
-robot2_shape = pymunk.Circle(robot2_body, robot2_radius)
-robot2_shape.elasticity = 1.0
-robot2_shape.friction = 1.0
-space.add(robot2_body, robot2_shape)
+class Robot:
+    def __init__(self, mass, x, y, radius=25, color=(255, 255, 255)):
+        self.mass = mass
+        self.body = pymunk.Body(mass=mass, moment=pymunk.moment_for_circle(mass, 0, radius))
+        self.body.position = x, y
+        self.shape = pymunk.Circle(self.body, radius)
+        self.radius = radius 
+        self.color = color
+    
+    def set_speed(self, x_speed, y_speed):
+        self.body.velocity = x_speed, y_speed
 
-# Definir a posição inicial do segundo robô
-robot2_body.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
+    def update_velocity(self, x_accel, y_accel, itmp):
+        self.body.apply_force_at_local_point((x_accel * self.mass, y_accel * self.mass))
+        
+    def update_position(self, itmp):
+        self.body.position += self.body.velocity * itmp
+
+# Criação do robô1 e robô2
+
+robo1 = Robot(mass=1, x=300, y=220, radius= 25, color = (0, 0, 255))
+robo1.set_speed(x_speed=0, y_speed=0)
+
+robo2 = Robot(mass=1, x=300, y=380, radius=25, color=(255, 0, 0))
+robo2.set_speed(x_speed=0, y_speed=0)
 
 # Loop principal
 running = True
@@ -53,18 +60,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        
-    # Calcular o tempo desde a última atualização
+    
+    # Atualizar posição dos robôs
     dt = clock.tick(60) / 1000.0
-
-    # Obter posição do mouse
-    mouse_pos = pygame.mouse.get_pos()
-
-    # Definir a posição do robô
-    robot_body.position = mouse_pos
-
-    # Atualizar física
-    space.step(dt)
+    robo1.update_position(dt)
+    robo2.update_position(dt)
 
     # Desenhar
     screen.fill((0, 0, 0))
@@ -88,12 +88,9 @@ while running:
     color = (0, 255, 0)
     pygame.draw.circle(screen, color, circle_positions, int(centerex_radius), 2)
 
-    # Desenhar o robô principal
-    color = (255, 0, 0)
-    pygame.draw.circle(screen, color, robot_body.position, int(robot_radius), 0)
+    # Desenhar robôs
+    pygame.draw.circle(screen, robo1.color, (int(robo1.body.position[0]), int(height - robo1.body.position[1])), robo1.radius)
+    pygame.draw.circle(screen, robo2.color, (int(robo2.body.position[0]), int(height - robo2.body.position[1])), robo2.radius)
 
-    # Desenhar o segundo robô
-    color = (0, 0, 255)
-    pygame.draw.circle(screen, color, robot2_body.position, int(robot2_radius), 0)
-
+    # Atualizar tela
     pygame.display.flip()
