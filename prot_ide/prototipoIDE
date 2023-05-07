@@ -22,7 +22,7 @@ arena_radius = 200
 center_radius = 180
 
 # Criar o círculo externo (quando 50% do diametro do robô sai, o robô perde).
-centerex_radius = 225
+outer_radius = 225
 
 # Criar a classe robô 
 
@@ -115,7 +115,7 @@ while running:
         dy = robo.body.position.y - circle_positions[1]
         distance = (dx ** 2 + dy ** 2) ** 0.5
        
-        if distance + 50 > centerex_radius + robo.radius:
+        if distance + 50 > outer_radius + robo.radius:
             # parar a simulação caso o robô encoste no círculo externo
             running = False
 
@@ -143,7 +143,7 @@ while running:
 
     # Desenhar o círculo externo
     color = (0, 255, 0)
-    pygame.draw.circle(screen, color, circle_positions, int(centerex_radius), 2)
+    pygame.draw.circle(screen, color, circle_positions, int(outer_radius), 2)
 
     # Desenhar robôs
     pygame.draw.circle(screen, robo1.color, (int(robo1.body.position[0]), int(height - robo1.body.position[1])), robo1.radius)
