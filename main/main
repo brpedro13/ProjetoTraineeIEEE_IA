@@ -28,6 +28,7 @@ outer_radius = 225
 
 # Criar a classe robô 
 
+
 class Robot:
     """
     Classe para criar os robôs do jogo.
@@ -87,11 +88,12 @@ class Robot:
 
 # Criação do robô1 e robô2 e definição da velocidade de ambos os robôs, caso queire testar, mude os valores de x e y
 
-robo1 = Robot(mass= 1, x=300, y=250, radius= 25, color = (0, 0, 255))
-robo1.set_speed(x_speed=0, y_speed= 0)
 
-robo2 = Robot(mass= 1, x=300, y=350, radius=25, color=(255, 0, 0))
-robo2.set_speed(x_speed= 0, y_speed= 0)
+robo1 = Robot(mass=1, x=300, y=250, radius=25, color=(0, 0, 255))
+robo1.set_speed(x_speed=0, y_speed=0)
+
+robo2 = Robot(mass=1, x=300, y=350, radius=25, color=(255, 0, 0))
+robo2.set_speed(x_speed=0, y_speed=0)
 
 # Adicionar os corpos ao espaço físico
 space.add(robo1.body, robo1.shape)
