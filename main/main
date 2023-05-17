@@ -1,6 +1,8 @@
 import pygame
 import pymunk
-
+import random
+import math
+from robot import Robot
 
 pygame.init()
 
@@ -19,81 +21,20 @@ circle_positions = (width / 2, height / 2)
 # Criar a arena
 arena_radius = 200
 
-
 # Criar o círculo central
 center_radius = 180
 
 # Criar o círculo externo (quando 50% do diametro do robô sai, o robô perde).
 outer_radius = 225
 
-# Criar a classe robô 
-
-
-class Robot:
-    """
-    Classe para criar os robôs do jogo.
-
-    Args:
-        mass (int): A massa do robô.
-        x (int): A posição x inicial do robô.
-        y (int): A posição y inicial do robô.
-        radius (float): O raio do robô. Padrão é 25.
-        color (tuple): A cor do robô em RGB.
-
-    Attributes:
-        mass (int): A massa do robô.
-        body (pymunk.Body): O corpo do robô no espaço físico.
-        shape (pymunk.Circle): O formato do corpo do robô.
-        elasticity (float): A elasticidade do robô.
-        friction (float): O atrito do robô.
-        radius (int): O raio do robô.
-        color (tuple): A cor do robô em RGB.
-        force (float): A força aplicada ao robô.
-
-    """
-
-    def __init__(self, mass, x, y, radius=25, color=(255, 255, 255)):
-        self.mass = mass
-        self.body = pymunk.Body(mass=mass, moment=pymunk.moment_for_circle(mass, 0, radius))
-        self.body.position = x, y
-        self.shape = pymunk.Circle(self.body, radius)
-        self.elasticity = 0.8
-        self.friction = 1
-        self.radius = radius 
-        self.color = color
-        self.force = 0
+# TODO não permitir que saia da arena
     
-    def set_speed(self, x_speed, y_speed):
-        self.body.velocity = x_speed, y_speed
+# Criação do Robo Azul e Vermelho
 
-        """
-        Define a velocidade do robô.
-
-        Args:
-            x_speed (int): A velocidade em x do robô.
-            y_speed (int): A velocidade em y do robô.
-
-        """
-        
-    def update_position(self, vartmp):
-        self.body.position += self.body.velocity * vartmp
-
-        """
-        Atualiza a posição do robô de acordo com a velocidade.
-
-        Args:
-            vartmp (float): O tempo decorrido desde a última atualização.
-
-        """
-
-# Criação do robô1 e robô2 e definição da velocidade de ambos os robôs, caso queire testar, mude os valores de x e y
-
-
-robo1 = Robot(mass=1, x=300, y=250, radius=25, color=(0, 0, 255))
+robo1 = Robot(mass=1, x=300, y=350, radius=25, color=(0, 0, 255))
 robo1.set_speed(x_speed=0, y_speed=0)
 
-robo2 = Robot(mass=1, x=300, y=350, radius=25, color=(255, 0, 0))
-robo2.set_speed(x_speed=0, y_speed=0)
+robo2 = Robot(mass=1, x=300, y=250, radius=25, color=(255, 0, 0))
 
 # Adicionar os corpos ao espaço físico
 space.add(robo1.body, robo1.shape)
@@ -113,6 +54,9 @@ while running:
     robo1.update_position(vartmp)
     robo2.update_position(vartmp)
 
+    # Movimento randômico do robô vermelho
+    robo2.random_movement()
+
     # Verificar se os robôs estão dentro do círculo externo.
 
     for robo in [robo1, robo2]:
@@ -120,9 +64,23 @@ while running:
         dy = robo.body.position.y - circle_positions[1]
         distance = (dx ** 2 + dy ** 2) ** 0.5
        
+        # Se 50% do robô sair da arena:
         if distance + 50 > outer_radius + robo.radius:
-            # parar a simulação caso o robô encoste no círculo externo
-            running = False
+
+            # Definindo novas posições para os robôs
+            new_pos_robo1 = (300, 350)
+            new_pos_robo2 = (300, 250)
+
+            # Resete a posição dos robôs
+            robo1.body.position = new_pos_robo1
+            robo2.body.position = new_pos_robo2
+
+            # Resete a posição dos robôs
+            robo1.body.position = new_pos_robo1
+            robo2.body.position = new_pos_robo2
+
+    ########## TODO Resetar momento e velocidade para a próxima ITERAÇÃO #########
+
 
     # Atualizar a simulação física
     space.step(vartmp)
