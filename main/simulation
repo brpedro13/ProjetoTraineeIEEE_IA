@@ -2,7 +2,7 @@ import pygame
 import pymunk
 import random
 import math
-from structures import Robot
+from robots import Robot
 
 pygame.init()
 
