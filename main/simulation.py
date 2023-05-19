@@ -2,13 +2,14 @@ import pygame
 import pymunk
 import random
 import math
-from robots import Robot
+from robot import Robot
+from genalg import create_population
 
 pygame.init()
 
 # Configurações da janela
-width = 600
-height = 600
+width = 1800
+height = 900
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Robo Sumo')
 
@@ -27,15 +28,21 @@ center_radius = 180
 # Criar o círculo externo (quando 50% do diametro do robô sai, o robô perde).
 outer_radius = 225
 
-# TODO não permitir que saia da arena
-    
-# Criação do Robo Azul e Vermelho
+# População 
 
-robo1 = Robot(mass=1, x=300, y=300, radius=25, color=(0, 0, 255))
-robo1.set_speed(x_speed=0, y_speed=0)
+population = create_population(space, circle_positions, 100)
 
-# Adicionar os corpos ao espaço físico
-space.add(robo1.body, robo1.shape)
+# Timer
+timer_duration = 10  # Duração do timer em segundos
+start_time = pygame.time.get_ticks()  # Tempo inicial em milissegundos
+reset_simulation = False
+
+# Contador de simulações
+simulation_counter = 0
+
+# Fonte para exibir texto na tela
+font = pygame.font.SysFont(None, 36)
+
 
 # Loop principal
 running = True
@@ -48,31 +55,47 @@ while running:
     
     # Atualizar posição dos robôs
     vartmp = clock.tick(60) / 1000.0
-    robo1.update_position(vartmp)
-    # Verificar se os robôs estão dentro do círculo externo.
+    for robo in population:
+        robo.update_position(vartmp)
+        robo.random_movement()
 
-    for robo in [robo1]:
+    # Verificar se os robôs estão dentro do círculo externo.   
+    for robo in population:
         dx = robo.body.position.x - circle_positions[0]
         dy = robo.body.position.y - circle_positions[1]
         distance = (dx ** 2 + dy ** 2) ** 0.5
        
         # Se 50% do robô sair da arena:
-        if distance + 50 > outer_radius + robo.radius:
+        if distance + robo.radius > outer_radius:
 
-            # Definindo novas posições para os robôs
-            new_pos_robo1 = (300, 350)
-
-            # Resete a posição dos robôs
-            robo1.body.position = new_pos_robo1
-
-            # Resete a posição dos robôs
-            robo1.body.position = new_pos_robo1
-
-    ########## TODO Resetar momento e velocidade para a próxima ITERAÇÃO #########
-
+            # Remover o robô da simulação
+            space.remove(robo.body, robo.shape)
+            population.remove(robo)
 
     # Atualizar a simulação física
     space.step(vartmp)
+
+    # Verificar o tempo decorrido
+    current_time = pygame.time.get_ticks()  # Tempo atual em milissegundos
+    elapsed_time = (current_time - start_time) // 1000  # Tempo decorrido em segundos
+
+    # Resetar a simulação após 10 segundos
+    if elapsed_time >= timer_duration:
+        # Resetar as variáveis
+        start_time = current_time
+        reset_simulation = True
+
+    # Resetar a simulação
+    if reset_simulation:
+        # Incrementar o contador de simulações
+        simulation_counter += 1
+
+        # Reiniciar a população de robôs
+        population = create_population(space, circle_positions, 100)
+
+        # Resetar a variável de controle
+        reset_simulation = False
+
 
     # Desenhar
     screen.fill((0, 0, 0))
@@ -97,7 +120,16 @@ while running:
     pygame.draw.circle(screen, color, circle_positions, int(outer_radius), 2)
 
     # Desenhar robôs
-    pygame.draw.circle(screen, robo1.color, (int(robo1.body.position[0]), int(height - robo1.body.position[1])), robo1.radius)
+    for robo in population:
+        pygame.draw.circle(screen, robo.color, (int(robo.body.position[0]), int(height - robo.body.position[1])), robo.radius)
+
+    # Desenhar o timer
+    timer_text = font.render("Timer: " + str(timer_duration - elapsed_time), True, (255, 255, 255))
+    screen.blit(timer_text, (20, 20))
+
+    # Desenhar o contador
+    counter_text = font.render("Generation number: " + str(simulation_counter), True, (255, 255, 255))
+    screen.blit(counter_text, (20, 60))
 
     # Atualizar tela
     pygame.display.flip()
