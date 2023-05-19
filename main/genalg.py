@@ -6,8 +6,6 @@ import pymunk
 height = 1800
 width = 900
 
-
-
 def create_population(space: 'pymunk.Space', circle_positions: tuple, population_size: int) -> list:
     population = []
     for _ in range(population_size):
