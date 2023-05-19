@@ -2,6 +2,10 @@ import math
 import pymunk
 import random
 
+width = 1800
+height = 900
+circle_positions = (width / 2, height / 2)
+
 # Criar a classe robô 
 
 class Robot:
@@ -58,3 +62,30 @@ class Robot:
             vartmp (float): O tempo decorrido desde a última atualização.
 
         """
+
+    def random_movement(self):
+
+        """
+        Permite que o segundo robô se mova de forma randômica pela arena
+        """
+
+        # Definir a velocidade máxima que pode ser aplicada
+        max_speed = 1000
+
+        # Definição de um intervalo randômico
+
+        if random.randint(0,20) == 20:
+            # Escolher uma rotação aleatória
+            rand_rotation = random.uniform(0,2 * math.pi)
+            # Aplicar a rotação no corpo do robô
+            self.body.angle += rand_rotation
+
+            # Calcular as coordenadas x e y da direção com base no ângulo escolhido
+            direction_x = math.cos(self.body.angle)
+            direction_y = math.sin(self.body.angle)
+
+            # Escolher uma velocidade aleatória
+            rand_speed = random.uniform(max_speed - ((1/4) * max_speed), max_speed)
+
+            # Aplicar a velocidade na direção escolhida
+            self.body.apply_force_at_local_point((direction_x  * rand_speed, direction_y  * rand_speed))
