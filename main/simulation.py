@@ -2,7 +2,7 @@ import pygame
 import pymunk
 import random
 import math
-from robot import Robot
+from robots import Robot
 from genalg import create_population
 
 pygame.init()
