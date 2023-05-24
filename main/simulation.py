@@ -55,6 +55,7 @@ while running:
     
     # Atualizar posição dos robôs
     vartmp = clock.tick(60) / 1000.0
+    
     for robo in population:
         robo.update_position(vartmp)
         robo.random_movement()
