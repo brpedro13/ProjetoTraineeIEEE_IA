@@ -12,7 +12,7 @@ pygame.init()
 # Configurações da janela
 WIDTH = 1800
 HEIGHT = 900
-geracao = -1
+geracao = 0
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Robo Sumo')
 
