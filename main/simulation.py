@@ -113,7 +113,7 @@ def eval_genomes (genomes, config):
 
         for i, robo in enumerate(robos):
             angle = random.uniform(0, 2*math.pi)  # Defina um ângulo aleatório
-            speed = 500
+            speed = 350
             robo.move(angle, speed)
             ge[i].fitness += 5
 
@@ -169,7 +169,7 @@ def eval_genomes (genomes, config):
                 if robo.body in space.bodies:
                     space.remove(robo.body, robo.shape)
                 # Diminuir fitness e eliminar os genes do indivíduo que sair
-                ge[i].fitness -= 10
+                ge[i].fitness -= 40
                 robos.pop(i)
                 nets.pop(i)
                 ge.pop(i)
@@ -178,7 +178,7 @@ def eval_genomes (genomes, config):
 
         # Aumentar fitness para todos os robôs vivos    
         if robo.alive == True:
-            g.fitness += 4
+            g.fitness += 10
 
         # Verificar o acionamento do sensor de linha branca e da distancia andada
         for i, robo in enumerate(robos):
