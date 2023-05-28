@@ -1,12 +1,13 @@
 import math
 import pymunk
+import pygame
 
 WIDTH = 1800
 HEIGHT = 900
 circle_positions = (WIDTH / 2, HEIGHT / 2)
-outer_radius = 225 # Raio do circulo externo
-arena_radius = 200 # Raio da arena
-center_radius = 180 # Raio do círculo central
+OUTER_RADIUS = 225 # Raio do circulo externo
+ARENA_RADIUS = 200 # Raio da arena
+CENTER_RADIUS = 180 # Raio do círculo central
 
 
 # Criar a classe robô 
@@ -51,8 +52,8 @@ class Robot:
         self.distance_traveled = 0
         self.last_position = (x, y)  
         self.sensor_triggered = False
-        self.is_slow = False  
-        
+        self.is_slow = False
+
     def set_speed(self, x_speed, y_speed):
         self.body.velocity = x_speed, y_speed
 
@@ -80,7 +81,7 @@ class Robot:
         self.body.position += self.body.velocity * vartmp
         self.distance_traveled += math.sqrt(self.body.velocity.x ** 2 + self.body.velocity.y ** 2)
 
-        speed_threshold = 50  # Velocidade mínima considerada como baixa
+        speed_threshold = 60  # Velocidade mínima considerada como baixa
 
         # Verificar se o robô está se movendo em uma velocidade baixa
         if abs(self.body.velocity.x) < speed_threshold and abs(self.body.velocity.y) < speed_threshold:
@@ -93,7 +94,6 @@ class Robot:
 
         Args:
             vartmp (float): O tempo decorrido desde a última atualização.
-
         """
 
     def whiteline_sensor(self):
@@ -110,7 +110,7 @@ class Robot:
         distance = (dx ** 2 + dy ** 2) ** 0.5
 
         # Analise da posição do robô em relação à faixa branca
-        if distance <= arena_radius and distance >= center_radius:
+        if distance <= ARENA_RADIUS and distance >= CENTER_RADIUS:
             self.sensor_triggered = True
         else:
             self.sensor_triggered = False
