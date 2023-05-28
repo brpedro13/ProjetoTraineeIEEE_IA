@@ -113,7 +113,7 @@ def eval_genomes (genomes, config):
 
         for i, robo in enumerate(robos):
             angle = random.uniform(0, 2*math.pi)  # Defina um ângulo aleatório
-            speed = 200
+            speed = 500
             robo.move(angle, speed)
             ge[i].fitness += 5
 
