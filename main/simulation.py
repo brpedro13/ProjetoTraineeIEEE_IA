@@ -1,6 +1,7 @@
 import pygame
 import pymunk
 import math
+import sys
 from robots import Robot
 import os
 import neat
@@ -11,6 +12,7 @@ pygame.init()
 # Configurações da janela
 WIDTH = 1800
 HEIGHT = 900
+geracao = -1
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Robo Sumo')
 
@@ -30,7 +32,48 @@ CENTER_RADIUS = 180
 OUTER_RADIUS = 225
 
 # Fonte para exibir texto na tela
-font = pygame.font.SysFont(None, 36)
+font = pygame.font.SysFont(None, 30)
+
+def draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao):
+    # Background
+    screen.fill((0, 0, 0))
+
+    # Desenhar e definir o raio da arena
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(ARENA_RADIUS), 2)
+
+    # Desenhar e definir o raio e círculo central 
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(CENTER_RADIUS), 2)
+
+    # Preencher a área entre a arena e o círculo central
+    color = (255, 255, 255)
+    pygame.draw.circle(screen, color, circle_positions, int(CENTER_RADIUS), 0)
+    pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(CENTER_RADIUS - 10), 0)
+    pygame.draw.circle(screen, color, circle_positions, int(ARENA_RADIUS), 0)
+    pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(ARENA_RADIUS - 10), 0)
+
+    # Desenhar o círculo externo
+    color = (255, 0, 0)
+    pygame.draw.circle(screen, color, circle_positions, int(OUTER_RADIUS), 2)
+
+    # Desenhar robôs
+    for robo in robos:
+        pygame.draw.circle(screen, robo.color, (int(robo.body.position[0]), int(HEIGHT - robo.body.position[1])), robo.radius)
+
+    # Exibir número da geração
+    font_size = 40  
+    font = pygame.font.SysFont(None, font_size)
+    text = font.render(f'Geração: {geracao}', True, (255, 255, 255))
+    screen.blit(text, (10, 10))
+
+    # Atualizar tela
+    pygame.display.flip()
+
+def main():
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, "config_neat.txt")
+    run(config_path)
 
 def eval_genomes (genomes, config):
 
@@ -38,10 +81,11 @@ def eval_genomes (genomes, config):
     Função responsável por avaliar os genomas e executar a simulação.
     Recebe uma lista de genomas e uma configuração.
     """
-
+    global geracao
     ge = [] # Criação do genoma
     nets = [] # Criação das redes neurais associadas ao genoma
     robos = [] # Criação do robô 
+    geracao += 1 # Aumentar as gerações com o decorrer do código
 
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -56,8 +100,13 @@ def eval_genomes (genomes, config):
     while run and len(robos) > 0:
         # Tratar eventos
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
-                run = False
+                sys.exit('Simulation closed')
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    run = False
 
         # Atualizar posição dos robôs
         vartmp = clock.tick(60) / 1000.0
@@ -140,34 +189,8 @@ def eval_genomes (genomes, config):
         # Atualizar a simulação física
         space.step(vartmp)        
 
-        # Desenhar
-        screen.fill((0, 0, 0))
-
-        # Desenhar e definir o raio da arena
-        color = (255, 255, 255)
-        pygame.draw.circle(screen, color, circle_positions, int(ARENA_RADIUS), 2)
-
-        # Desenhar e definir o raio e círculo central 
-        color = (255, 255, 255)
-        pygame.draw.circle(screen, color, circle_positions, int(CENTER_RADIUS), 2)
-
-        # Preencher a área entre a arena e o círculo central
-        color = (255, 255, 255)
-        pygame.draw.circle(screen, color, circle_positions, int(CENTER_RADIUS), 0)
-        pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(CENTER_RADIUS - 10), 0)
-        pygame.draw.circle(screen, color, circle_positions, int(ARENA_RADIUS), 0)
-        pygame.draw.circle(screen, (0, 0, 0), circle_positions, int(ARENA_RADIUS - 10), 0)
-
-        # Desenhar o círculo externo
-        color = (255, 0, 0)
-        pygame.draw.circle(screen, color, circle_positions, int(OUTER_RADIUS), 2)
-
-        # Desenhar robôs
-        for robo in robos:
-            pygame.draw.circle(screen, robo.color, (int(robo.body.position[0]), int(HEIGHT - robo.body.position[1])), robo.radius)
-
-        # Atualizar tela
-        pygame.display.flip()
+        # Desenhar a janela
+        draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao)
 
 # Roda o algoritmo de Neuroevolução, que faz com que o robô aprenda a se mover pela arena seguindo as especificações
 def run(config_file):
@@ -180,7 +203,7 @@ def run(config_file):
                          config_file)
 
     # Criação da população
-    population = neat.Population(config) 
+    population = neat.Population(config)
 
     # Printa um relatório no terminal que demonstra o progresso da evolução
     population.add_reporter(neat.StdOutReporter(True))
@@ -188,13 +211,11 @@ def run(config_file):
     population.add_reporter(stats)
 
     # Roda a simulação até 50 gerações
-    winner = population.run(eval_genomes,50)
+    winner = population.run(eval_genomes, 50)
 
     # Printa o resultado final
     print('Melhor genoma:\n{!s}'.format(winner))
-
+    
 # Determina o caminho do arquivo, está presente para o código rodar independente do diretório ativo.    
 if __name__ == '__main__':
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, "config_neat.txt")
-    run(config_path)
+    main()
