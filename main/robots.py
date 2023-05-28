@@ -1,10 +1,13 @@
 import math
 import pymunk
-import random
 
-width = 1800
-height = 900
-circle_positions = (width / 2, height / 2)
+WIDTH = 1800
+HEIGHT = 900
+circle_positions = (WIDTH / 2, HEIGHT / 2)
+outer_radius = 225 # Raio do circulo externo
+arena_radius = 200 # Raio da arena
+center_radius = 180 # Raio do círculo central
+
 
 # Criar a classe robô 
 
@@ -27,6 +30,11 @@ class Robot:
         friction (float): O atrito do robô.
         radius (int): O raio do robô.
         color (tuple): A cor do robô em RGB.
+        alive (bool): Indica se o robô está vivo ou não.
+        distance_traveled (float): A distância total percorrida pelo robô.
+        last_position (tuple): As coordenadas da última posição do robô.
+        sensor_triggered (bool): Indica se o sensor de faixa branca foi acionado.
+        is_slow (bool): Indica se o robô está se movendo em uma velocidade baixa.
 
     """
 
@@ -39,7 +47,12 @@ class Robot:
         self.friction = 1
         self.radius = radius 
         self.color = color
-    
+        self.alive = True 
+        self.distance_traveled = 0
+        self.last_position = (x, y)  
+        self.sensor_triggered = False
+        self.is_slow = False  
+
     def set_speed(self, x_speed, y_speed):
         self.body.velocity = x_speed, y_speed
 
@@ -49,11 +62,31 @@ class Robot:
         Args:
             x_speed (int): A velocidade em x do robô.
             y_speed (int): A velocidade em y do robô.
-
         """
+
+    def move(self, angle, speed):
+        """
+        Move o robô em uma direção específica com uma determinada velocidade.
+
+        Args:
+            angle (float): O ângulo de movimento em radianos.
+            speed (float): A velocidade de movimento do robô.
+        """
+        x_speed = speed * math.cos(angle)
+        y_speed = speed * math.sin(angle)
+        self.set_speed(x_speed, y_speed)
         
     def update_position(self, vartmp):
         self.body.position += self.body.velocity * vartmp
+        self.distance_traveled += math.sqrt(self.body.velocity.x ** 2 + self.body.velocity.y ** 2)
+
+        speed_threshold = 50  # Velocidade mínima considerada como baixa
+
+        # Verificar se o robô está se movendo em uma velocidade baixa
+        if abs(self.body.velocity.x) < speed_threshold and abs(self.body.velocity.y) < speed_threshold:
+            self.is_slow = True
+        else:
+            self.is_slow = False        
 
         """
         Atualiza a posição do robô de acordo com a velocidade.
@@ -63,29 +96,34 @@ class Robot:
 
         """
 
-    def random_movement(self):
+    def whiteline_sensor(self):
 
         """
-        Permite que o segundo robô se mova de forma randômica pela arena
+        Verifica se o sensor de linha branca está acionado.
+
+        Returns:
+            bool: True se o sensor estiver acionado, False caso contrário.
         """
 
-        # Definir a velocidade máxima que pode ser aplicada
-        max_speed = 1000
+        dx = self.body.position.x - circle_positions[0]
+        dy = self.body.position.y - circle_positions[1]
+        distance = (dx ** 2 + dy ** 2) ** 0.5
 
-        # Definição de um intervalo randômico
+        # Analise da posição do robô em relação à faixa branca
+        if distance <= arena_radius and distance >= center_radius:
+            self.sensor_triggered = True
+        else:
+            self.sensor_triggered = False
+        
+        return self.sensor_triggered
 
-        if random.randint(0,20) == 20:
-            # Escolher uma rotação aleatória
-            rand_rotation = random.uniform(0,2 * math.pi)
-            # Aplicar a rotação no corpo do robô
-            self.body.angle += rand_rotation
+    def update_distance_traveled(self):
 
-            # Calcular as coordenadas x e y da direção com base no ângulo escolhido
-            direction_x = math.cos(self.body.angle)
-            direction_y = math.sin(self.body.angle)
+        """
+        Atualiza a distância total percorrida pelo robô.
+        """
 
-            # Escolher uma velocidade aleatória
-            rand_speed = random.uniform(max_speed - ((1/4) * max_speed), max_speed)
-
-            # Aplicar a velocidade na direção escolhida
-            self.body.apply_force_at_local_point((direction_x  * rand_speed, direction_y  * rand_speed))
+        current_position = self.body.position
+        distance = math.sqrt((current_position.x - self.last_position[0]) ** 2 + (current_position.y - self.last_position[1]) ** 2)
+        self.distance_traveled += distance
+        self.last_position = (current_position.x, current_position.y)
