@@ -52,7 +52,7 @@ class Robot:
         self.last_position = (x, y)  
         self.sensor_triggered = False
         self.is_slow = False  
-
+        
     def set_speed(self, x_speed, y_speed):
         self.body.velocity = x_speed, y_speed
 
@@ -87,7 +87,7 @@ class Robot:
             self.is_slow = True
         else:
             self.is_slow = False        
-
+        
         """
         Atualiza a posição do robô de acordo com a velocidade.
 
