@@ -119,7 +119,7 @@ def eval_genomes (genomes, config):
                 # Remover o robô da simulação
                 if robo.body in space.bodies:
                     space.remove(robo.body, robo.shape)
-                # diminuir fitness e eliminar os genes do indivíduo que sair
+                # Diminuir fitness e eliminar os genes do indivíduo que sair
                 ge[i].fitness -= 10
                 robos.pop(i)
                 nets.pop(i)
@@ -178,7 +178,7 @@ def run(config_file):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
-    
+
     # Criação da população
     population = neat.Population(config) 
 
