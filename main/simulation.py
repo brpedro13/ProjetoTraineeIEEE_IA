@@ -7,7 +7,7 @@ import os
 import neat
 import random
 import matplotlib.pyplot as plt
-import numpy as np
+from p_graph import Plot_Graphic
 
 pygame.init()
 
@@ -35,43 +35,6 @@ OUTER_RADIUS = 225
 
 # Fonte para exibir texto na tela
 font = pygame.font.SysFont(None, 30)
-
-def plot_stats(stats):
-    """ Plota a média de fitness da população e do melhor indivíduo."""
-
-    generation = range(len(stats.most_fit_genomes))
-    best_fitness = [c.fitness for c in stats.most_fit_genomes]
-    avg_fitness = np.array(stats.get_fitness_mean())
-    stdev_fitness = np.array(stats.get_fitness_stdev())
-
-    plt.plot(generation, avg_fitness, 'b-', label="Média")
-    plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
-    plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 sd")
-    plt.plot(generation, best_fitness, 'r-', label="Melhor")
-
-    plt.title("Média de fitness da população e fitness do melhor indivíduo")
-    plt.xlabel("Gerações")
-    plt.ylabel("Fitness")
-    plt.grid()
-    plt.legend(loc="best")
-    plt.show()
-
-def plot_species(stats):
-    """ Visualiza a especiação ao longo da evolução. """
-
-    species_sizes = stats.get_species_sizes()
-    num_generations = len(species_sizes)
-    curves = np.array(species_sizes).T
-
-    fig, ax = plt.subplots()
-    ax.stackplot(range(num_generations), *curves)
-
-    plt.title("Especiação")
-    plt.ylabel("Tamanho por espécie")
-    plt.xlabel("Gerações")
-    plt.show()
-
-    return fig
 
 
 def draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao):
@@ -148,9 +111,9 @@ def eval_genomes (genomes, config):
                 if event.key == pygame.K_f:
                     run = False
                 if event.key == pygame.K_g:
-                    plot_stats(stats)
+                    Plot_Graphic.plot_stats(stats)
                 if event.key == pygame.K_h:
-                    plot_species(stats)
+                    Plot_Graphic.plot_species(stats)
 
         # Atualizar posição dos robôs
         vartmp = clock.tick(60) / 1000.0
