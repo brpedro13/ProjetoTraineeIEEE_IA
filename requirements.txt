@@ -6,3 +6,4 @@ neat
 random
 sys
 matplotlib
+numpy
