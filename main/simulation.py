@@ -216,6 +216,6 @@ def run(config_file):
     # Printa o resultado final
     print('Melhor genoma:\n{!s}'.format(winner))
     
-# Determina o caminho do arquivo, está presente para o código rodar independente do diretório ativo.    
+# Determina o caminho do arquivo, está presente para o código rodar independente do diretório ativo
 if __name__ == '__main__':
     main()
