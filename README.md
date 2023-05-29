@@ -12,3 +12,7 @@ Os robôs são controlados por redes neurais treinadas utilizando o algoritmo de
 >- ***math***: Módulo matemático padrão do Python. É utilizado para realizar cálculos matemáticos, como geração de números aleatórios e cálculo de distâncias e ângulos.
 
 >- ***neat***: Biblioteca NEAT (NeuroEvolution of Augmenting Topologies) para a implementação do algoritmo de neuroevolução. Ela oferece as funcionalidades necessárias para criar e evoluir redes neurais através de reprodução genética e seleção natural.
+
+>- ***matplotlib***: Biblioteca amplamente utilizada para a visualização de dados em Python. Ela oferece uma ampla variedade de funções para criar gráficos e visualizações de alta qualidade. Essa biblioteca é essencial para a análise e visualização dos resultados obtidos no algoritmo de neuroevolução.
+
+>- ***numpy***: Biblioteca fundamental para a computação científica em Python. Ela fornece estruturas de dados eficientes para manipulação de arrays multidimensionais, além de funções matemáticas de alto desempenho. É utilizada no código para calcular a média de fitness da população e do melhor indivíduo, armazenar os valores de fitness em arrays multidimensionais
