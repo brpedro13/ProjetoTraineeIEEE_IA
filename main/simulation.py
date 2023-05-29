@@ -6,6 +6,7 @@ from robots import Robot
 import os
 import neat
 import random
+import matplotlib.pyplot as plt
 
 pygame.init()
 
@@ -33,6 +34,15 @@ OUTER_RADIUS = 225
 
 # Fonte para exibir texto na tela
 font = pygame.font.SysFont(None, 30)
+
+def draw_fitness_graph(best_fitness, average_fitness):
+    plt.plot(best_fitness, label='Melhor Fitness')
+    plt.plot(average_fitness, label='Fitness Médio')
+    plt.xlabel('Geração')
+    plt.ylabel('Fitness')
+    plt.title('Evolução do Fitness')
+    plt.legend()
+    plt.show()
 
 def draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao):
     # Background
@@ -86,6 +96,8 @@ def eval_genomes (genomes, config):
     nets = [] # Criação das redes neurais associadas ao genoma
     robos = [] # Criação do robô 
     geracao += 1 # Aumentar as gerações com o decorrer do código
+    best_fitness = []  # Lista para armazenar o melhor fitness de cada geração
+    average_fitness = []  # Lista para armazenar o fitness médio de cada geração
 
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -107,13 +119,15 @@ def eval_genomes (genomes, config):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     run = False
+                if event.key == pygame.K_g:
+                    draw_fitness_graph(best_fitness, average_fitness)
 
         # Atualizar posição dos robôs
         vartmp = clock.tick(60) / 1000.0
 
         for i, robo in enumerate(robos):
             angle = random.uniform(0, 2*math.pi)  # Defina um ângulo aleatório
-            speed = 350
+            speed = 200
             robo.move(angle, speed)
             ge[i].fitness += 5
 
@@ -169,7 +183,7 @@ def eval_genomes (genomes, config):
                 if robo.body in space.bodies:
                     space.remove(robo.body, robo.shape)
                 # Diminuir fitness e eliminar os genes do indivíduo que sair
-                ge[i].fitness -= 40
+                ge[i].fitness -= 10
                 robos.pop(i)
                 nets.pop(i)
                 ge.pop(i)
@@ -178,7 +192,7 @@ def eval_genomes (genomes, config):
 
         # Aumentar fitness para todos os robôs vivos    
         if robo.alive == True:
-            g.fitness += 10
+            g.fitness += 4
 
         # Verificar o acionamento do sensor de linha branca e da distancia andada
         for i, robo in enumerate(robos):
@@ -187,10 +201,17 @@ def eval_genomes (genomes, config):
                 ge[i].fitness -= 10 # Diminuir a fitness individual quando o sensor é acionado
 
         # Atualizar a simulação física
-        space.step(vartmp)        
+        space.step(vartmp)
+
+        if len(ge) > 0:
+            # Calcular o melhor e o fitness médio da geração atual
+            best_fitness.append(max([g.fitness for g in ge]))
+            average_fitness.append(sum([g.fitness for g in ge]) / len(ge))  
 
         # Desenhar a janela
         draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao)
+
+        
 
 # Roda o algoritmo de Neuroevolução, que faz com que o robô aprenda a se mover pela arena seguindo as especificações
 def run(config_file):
@@ -216,6 +237,6 @@ def run(config_file):
     # Printa o resultado final
     print('Melhor genoma:\n{!s}'.format(winner))
     
-# Determina o caminho do arquivo, está presente para o código rodar independente do diretório ativo
+# Determina o caminho do arquivo, está presente para o código rodar independente do diretório ativo.    
 if __name__ == '__main__':
     main()
