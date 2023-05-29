@@ -116,6 +116,8 @@ def eval_genomes (genomes, config):
             if event.type == pygame.QUIT:
                 sys.exit('Simulation closed')
             
+            # Se apertar 'r', a geração é forçada a avançar
+            # Se aperar 'g', é plotado um gráfico que mostra o o melhor e a média fitness
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     run = False
