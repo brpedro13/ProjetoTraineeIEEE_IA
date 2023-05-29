@@ -56,6 +56,23 @@ def plot_stats(stats):
     plt.legend(loc="best")
     plt.show()
 
+def plot_species(stats):
+    """ Visualiza a especiação ao longo da evolução. """
+
+    species_sizes = stats.get_species_sizes()
+    num_generations = len(species_sizes)
+    curves = np.array(species_sizes).T
+
+    fig, ax = plt.subplots()
+    ax.stackplot(range(num_generations), *curves)
+
+    plt.title("Especiação")
+    plt.ylabel("Tamanho por espécie")
+    plt.xlabel("Gerações")
+    plt.show()
+
+    return fig
+
 
 def draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao):
     # Background
@@ -128,10 +145,12 @@ def eval_genomes (genomes, config):
                 sys.exit('Simulation closed')
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
+                if event.key == pygame.K_f:
                     run = False
                 if event.key == pygame.K_g:
                     plot_stats(stats)
+                if event.key == pygame.K_h:
+                    plot_species(stats)
 
         # Atualizar posição dos robôs
         vartmp = clock.tick(60) / 1000.0
