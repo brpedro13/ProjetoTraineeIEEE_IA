@@ -7,13 +7,14 @@ import os
 import neat
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 pygame.init()
 
 # Configurações da janela
 WIDTH = 1800
 HEIGHT = 900
-geracao = 0
+geracao = -1
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Robo Sumo')
 
@@ -35,14 +36,26 @@ OUTER_RADIUS = 225
 # Fonte para exibir texto na tela
 font = pygame.font.SysFont(None, 30)
 
-def draw_fitness_graph(best_fitness, average_fitness):
-    plt.plot(best_fitness, label='Melhor Fitness')
-    plt.plot(average_fitness, label='Fitness Médio')
-    plt.xlabel('Geração')
-    plt.ylabel('Fitness')
-    plt.title('Evolução do Fitness')
-    plt.legend()
+def plot_stats(stats):
+    """ Plota a média de fitness da população e do melhor indivíduo."""
+
+    generation = range(len(stats.most_fit_genomes))
+    best_fitness = [c.fitness for c in stats.most_fit_genomes]
+    avg_fitness = np.array(stats.get_fitness_mean())
+    stdev_fitness = np.array(stats.get_fitness_stdev())
+
+    plt.plot(generation, avg_fitness, 'b-', label="Média")
+    plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
+    plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 sd")
+    plt.plot(generation, best_fitness, 'r-', label="Melhor")
+
+    plt.title("Média de fitness da população e fitness do melhor indivíduo")
+    plt.xlabel("Gerações")
+    plt.ylabel("Fitness")
+    plt.grid()
+    plt.legend(loc="best")
     plt.show()
+
 
 def draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao):
     # Background
@@ -96,8 +109,7 @@ def eval_genomes (genomes, config):
     nets = [] # Criação das redes neurais associadas ao genoma
     robos = [] # Criação do robô 
     geracao += 1 # Aumentar as gerações com o decorrer do código
-    best_fitness = []  # Lista para armazenar o melhor fitness de cada geração
-    average_fitness = []  # Lista para armazenar o fitness médio de cada geração
+
 
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -105,7 +117,6 @@ def eval_genomes (genomes, config):
         robos.append(Robot(1, circle_positions[0],circle_positions[1]))
         g.fitness = 0
         ge.append(g)
-
     # Loop principal
     run = True
     clock = pygame.time.Clock()
@@ -116,13 +127,11 @@ def eval_genomes (genomes, config):
             if event.type == pygame.QUIT:
                 sys.exit('Simulation closed')
             
-            # Se apertar 'r', a geração é forçada a avançar
-            # Se aperar 'g', é plotado um gráfico que mostra o o melhor e a média fitness
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     run = False
                 if event.key == pygame.K_g:
-                    draw_fitness_graph(best_fitness, average_fitness)
+                    plot_stats(stats)
 
         # Atualizar posição dos robôs
         vartmp = clock.tick(60) / 1000.0
@@ -138,11 +147,12 @@ def eval_genomes (genomes, config):
                 ge[i].fitness -= 80  # Reduzir o fitness do genoma correspondente            
 
             # Enviar a posição atual para a rede neural e obter as saídas
-            outputs = nets[i].activate((robo.body.position.x, robo.body.position.y,))
+            outputs = nets[i].activate((robo.body.position.x, robo.body.position.y, robo.whiteline_sensor()))
 
             # Obter a movimentação em x e y a partir das saídas da rede neural
             move_x = outputs[0]
             move_y = outputs[1]
+            angle = outputs[2] * 2 * math.pi - math.pi
 
             # Atualizar a posição do robô com base na movimentação em x e y
             dx = robo.body.position.x - circle_positions[0]
@@ -205,15 +215,8 @@ def eval_genomes (genomes, config):
         # Atualizar a simulação física
         space.step(vartmp)
 
-        if len(ge) > 0:
-            # Calcular o melhor e o fitness médio da geração atual
-            best_fitness.append(max([g.fitness for g in ge]))
-            average_fitness.append(sum([g.fitness for g in ge]) / len(ge))  
-
         # Desenhar a janela
         draw_window(robos, circle_positions, ARENA_RADIUS, CENTER_RADIUS, OUTER_RADIUS, geracao)
-
-        
 
 # Roda o algoritmo de Neuroevolução, que faz com que o robô aprenda a se mover pela arena seguindo as especificações
 def run(config_file):
@@ -230,6 +233,7 @@ def run(config_file):
 
     # Printa um relatório no terminal que demonstra o progresso da evolução
     population.add_reporter(neat.StdOutReporter(True))
+    global stats
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
 
