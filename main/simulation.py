@@ -2,11 +2,11 @@ import pygame
 import pymunk
 import math
 import sys
-from robots import Robot
 import os
 import neat
 import random
 import matplotlib.pyplot as plt
+from robots import Robot
 from p_graph import Plot_Graphic
 
 pygame.init()
