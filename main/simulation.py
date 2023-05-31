@@ -7,6 +7,7 @@ import neat
 import random
 from robots import Robot
 from p_graph import Plot_Graphic
+print('\033[1m') # Terminal em negrito
 
 # Iniciando o pygame
 pygame.init()
