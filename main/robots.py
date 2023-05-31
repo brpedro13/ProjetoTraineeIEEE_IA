@@ -86,7 +86,7 @@ class Robot:
 
         vartmp: O tempo decorrido desde a última atualização.
         """
-        # Atualziando posição
+        # Atualiziando posição
         self.body.position += self.body.velocity * vartmp
         self.distance_traveled += math.sqrt(self.body.velocity.x ** 2 + self.body.velocity.y ** 2)
 
