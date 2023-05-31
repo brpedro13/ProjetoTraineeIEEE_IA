@@ -14,7 +14,7 @@ CENTER_RADIUS = 180
 # Dados dos robos
 circle_positions = (WIDTH / 2, HEIGHT / 2)
 SPEED = 200
-colors = ('white', 'blue', 'green', 'pink', 'yellow', 'gray', 'purple', 'cyan', 'orange')
+colors = ('blue', 'green', 'pink', 'yellow', 'gray', 'purple', 'cyan', 'orange')
 
 # Criar a classe robô 
 class Robot:
