@@ -3,7 +3,7 @@ import pymunk
 import random
 
 # Dados da janela
-WIDTH = 1800
+WIDTH = 900
 HEIGHT = 900
 
 # Dados da Arena
