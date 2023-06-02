@@ -13,7 +13,7 @@ print('\033[1m') # Terminal em negrito
 pygame.init()
 
 # Configurações da janela
-WIDTH = 1800                                        # Comprimento da janela
+WIDTH = 900                                        # Comprimento da janela
 HEIGHT = 900                                        # Largura da janela
 screen = pygame.display.set_mode((WIDTH, HEIGHT))   # Criação do display no pygame
 pygame.display.set_caption('Robo Sumo')             # Título da aba
