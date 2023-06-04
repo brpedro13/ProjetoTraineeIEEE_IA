@@ -176,11 +176,11 @@ def eval_genomes(genomes: list[neat.DefaultGenome], config: str):
 
             angle = random.uniform(0, 2*math.pi)  # Defina um ângulo aleatório
             robo.move(angle, robo.speed)          # Robo anda em direção esse ângulo
-            ge[i].fitness += 5                    # Incentivando robo a não ficar parado
+            ge[i].fitness += 5/1000                    # Incentivando robo a não ficar parado
 
             # Verificar se o robô está se movendo em uma velocidade baixa
             if robo.is_slow:
-                ge[i].fitness -= 80  # Reduzir o fitness do genoma correspondente            
+                ge[i].fitness -= 80/1000  # Reduzir o fitness do genoma correspondente            
 
             # Enviar a posição atual para a rede neural e obter as saídas
             outputs = nets[i].activate((robo.body.position.x,
@@ -223,7 +223,7 @@ def eval_genomes(genomes: list[neat.DefaultGenome], config: str):
         # Verificar a distância percorrida pelos robôs e incrementar o fitness pelo indivíduo que andar mais
         for i, robo in enumerate(robos):
             distance_traveled = robo.distance_traveled
-            ge[i].fitness += (distance_traveled)/100
+            ge[i].fitness += ((distance_traveled)/100)/1000
 
         # Verificar se os robôs estão dentro do círculo externo.   
         for i,robo in enumerate(robos):
@@ -239,7 +239,7 @@ def eval_genomes(genomes: list[neat.DefaultGenome], config: str):
                     space.remove(robo.body, robo.shape)
 
                 # Diminuir fitness e eliminar os genes do indivíduo que sair
-                ge[i].fitness -= 10
+                ge[i].fitness -= 10/1000
                 robos.pop(i)
                 nets.pop(i)
                 ge.pop(i)
@@ -249,13 +249,13 @@ def eval_genomes(genomes: list[neat.DefaultGenome], config: str):
 
         # Aumentar fitness para todos os robôs vivos    
         if robo.alive == True:
-            g.fitness += 4
+            g.fitness += 4/1000
 
         # Verificar o acionamento do sensor de linha branca e da distancia andada
         for i, robo in enumerate(robos):
             sensor_triggered = robo.whiteline_sensor()
             if sensor_triggered:
-                ge[i].fitness -= 10 # Diminuir a fitness individual quando o sensor é acionado
+                ge[i].fitness -= 10/1000 # Diminuir a fitness individual quando o sensor é acionado
 
         # Atualizar a simulação física
         space.step(vartmp)
