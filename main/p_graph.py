@@ -21,6 +21,7 @@ class Plot_Graphic:
         plt.xlabel("Gerações")
         plt.ylabel("Fitness")
         plt.grid()
+        plt.yscale('log')  # Adiciona a escala logarítmica
         plt.legend(loc="best")
         plt.show()
 
