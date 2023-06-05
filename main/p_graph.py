@@ -13,15 +13,12 @@ class Plot_Graphic:
         stdev_fitness = np.array(self.get_fitness_stdev())
 
         plt.plot(generation, avg_fitness, 'b-', label="Média")
-        plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 dp")
-        plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 dp")
         plt.plot(generation, best_fitness, 'r-', label="Melhor")
-
         plt.title("Média de fitness da população e fitness do melhor indivíduo")
         plt.xlabel("Gerações")
         plt.ylabel("Fitness")
         plt.grid()
-        plt.yscale('log')  # Adiciona a escala logarítmica
+        plt.yscale('log')
         plt.legend(loc="best")
         plt.show()
 
