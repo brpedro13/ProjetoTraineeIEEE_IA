@@ -2,7 +2,7 @@ pygame
 pymunk
 math
 os
-neat
+neat-python
 random
 sys
 matplotlib
